@@ -3,9 +3,10 @@ import shutil
 from datetime import datetime
 import cv2
 import numpy as np
-from PIL import ImageChops, Image
+from PIL import Image
+from PIL.ExifTags import Base
 
-SRC_DIR = os.path.expanduser('~/Desktop/sample-japan-jpg/')
+SRC_DIR = os.path.expanduser('~/Desktop/2024-japan-jpg/')
 DEST_DIR = os.path.expanduser('~/Desktop/japan-hdr-jpg/')
 
 
@@ -14,11 +15,6 @@ def list_src_files():
     file_list_with_dates = [(file, datetime.fromtimestamp(os.stat(file).st_birthtime)) for file in file_list]
     sorted_files = sorted(file_list_with_dates, key=lambda x: x[1])
     return [x[0] for x in sorted_files]
-
-
-def compare_image_similarity(img1, img2):
-    diff = ImageChops.difference(img1, img2)
-    return np.mean(np.array(diff))
 
 
 def bucket_images_by_date():
@@ -40,14 +36,7 @@ def bucket_images_by_date():
         if not os.path.exists(dest_file_path):
             shutil.copy(src_file, dest_file_path)
         else:
-            src_img = Image.open(src_file)
-            dest_img = Image.open(dest_file_path)
-            diff = compare_image_similarity(src_img, dest_img)
-            print(f'diff({src_file}, {dest_file_path}) = {diff}')
-            if diff > 0.01:
-                suffix = src_file_name.split('.')[-1]
-                dest_file_path = dest_file_dir + src_file_name.split('.')[0] + '_' + str(i) + '.' + suffix
-                shutil.copy(src_file, dest_file_path)
+            raise ValueError(f'destination file already exists: {dest_file_path}')
         prev_file_date = src_file_date
 
 
@@ -87,11 +76,9 @@ def stabilize_images(image_sequence: list[np.ndarray]):
 def get_exposure_time_for_image(image_path: str) -> float:
     with Image.open(image_path) as img:
         exif_data = img._getexif()
-        # Ensure EXIF data is present
         if not exif_data:
             raise ValueError("no EXIF data found")
-        # Tag 0x829A corresponds to ExposureTime
-        exposure_time = exif_data.get(0x829A)
+        exposure_time = exif_data.get(Base.ExposureTime.value, None)
         print(f'exposure time for {image_path} = {exposure_time}')
         if exposure_time:
             return exposure_time

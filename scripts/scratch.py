@@ -1,7 +1,5 @@
-import os
+from PIL.ExifTags import Base, TAGS
 
-
-dir = '~/Desktop'
 
 if __name__ == '__main__':
-    print(os.path.expanduser(dir))
+    print(Base.ExposureTime.value)
