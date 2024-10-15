@@ -6,8 +6,8 @@ import numpy as np
 from PIL import Image
 from PIL.ExifTags import Base
 
-SRC_DIR = os.path.expanduser('~/Desktop/2024-japan-jpg/')
-DEST_DIR = os.path.expanduser('~/Desktop/japan-hdr-jpg/')
+SRC_DIR = os.path.expanduser('~/Desktop/jpg/')
+DEST_DIR = os.path.expanduser('~/Desktop/hdr/')
 
 
 def list_src_files():
